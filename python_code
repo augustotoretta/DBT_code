@@ -1,0 +1,111 @@
+import pandas as pd
+
+#creo la función
+def dx_dbt(gluc_ayuno, ptgo, a1c, gluc_azar, sintomas):
+
+    if gluc_ayuno > 125 or ptgo > 199 or a1c > 6.4:
+      resultado = "Diabetes"
+    elif gluc_azar >= 200 and sintomas == "si":
+      resultado = "Diabetes"
+
+    elif (100 <= gluc_ayuno <= 125) or (140 <= ptgo <= 199) or (5.7 <= a1c <= 6.4):
+      resultado = "Pre-diabetes"
+
+    else:
+      resultado = "No tiene diabetes"
+
+    return resultado
+
+#Creo dos funciones, una para la conversión en integer y otra para float, asi no repito el cógido para c/variable
+def ingresar_valor_float(mensaje):
+  valor = input(mensaje)
+  return 0 if valor == "" else float(valor)
+
+def ingresar_valor_int(mensaje):
+  valor = input(mensaje)
+  return 0 if valor == "" else int(valor)
+
+print(
+    """
+    Esta herramienta esta creada con el objetivo de clasificar pacientes segun su diagnóstico y posteriormente almacenarlos.
+    Se deben utilizar valores de:
+    - Glucemia: mg/dL
+    - HbA1c: %
+    En caso de no poseer el dato solicitado, ingrese simplemente enter.
+    """
+    )
+#Creo listas vacías donde se almacenes los datos cargados
+pacientes = []
+
+mensajes = {
+    "nombre": "\nCual es el nombre de su paciente?\n(Ingresa 'salir' para detener el ingreso de pacientes): \n",
+    "sexo": "Cual es el sexo?: f/m ",
+    "gluc_ayuno": "Ingrese valor de glucemia en ayuno: ",
+    "ptgo": "Ingrese valor de PTOG: ",
+    "a1c": "Ingrese valor de A1c: ",
+    "sintomas": "Posee sintomas? \n(polidipsia, poliuria y/o polifagia) si/no ",
+    "gl_az": "Por favor indique el valor de glucemia al azar: ",
+    }
+
+#determino variable de control
+variable_control_1 = True
+
+#Creo el while loop
+while variable_control_1:
+
+#Creo un diccionario de pacientes vacío
+  paciente = {}
+
+#comienzo con los input
+  paciente["nombre"] = input(mensajes["nombre"]).strip().lower()
+
+#condición de cierre del loop
+  if paciente["nombre"] == "salir":
+    variable_control_1 = False
+
+#resto del cuerpo del loop
+  else:
+
+#creo loop para evitar errores de tipeo en sexo
+    variable_control_2 = True
+    while variable_control_2:
+      paciente["sexo"] = (input(mensajes["sexo"])).strip().lower()
+      if paciente["sexo"] != "f" and paciente["sexo"] != "m":
+        print("Por favor ingrese f o m")
+      else:
+          variable_control_2 = False
+
+#uso las funciones creadas aparte para cada variable
+    paciente["gluc_ayuno"] = ingresar_valor_int(mensajes["gluc_ayuno"])
+    paciente["ptgo"] = ingresar_valor_int(mensajes["ptgo"])
+    paciente["a1c"] = ingresar_valor_float(mensajes["a1c"])
+    paciente["gl_az"] = ingresar_valor_int(mensajes["gl_az"])
+
+#Loop para evitar errores de tipeo en sintomas
+    variable_control_3 = True
+    while variable_control_3:
+      paciente["sintomas"] = input(mensajes["sintomas"]).lower().strip()
+      if paciente["sintomas"] != "si" and paciente["sintomas"] != "no":
+        print("Por favor responda si o no")
+      else:
+          variable_control_3 = False
+
+#Aplico funcion de diagnostico a los datos recolectados con los input
+    paciente["diagnostico"] = dx_dbt(
+        paciente["gluc_ayuno"],
+        paciente["ptgo"],
+        paciente["a1c"],
+        paciente["gl_az"],
+        paciente["sintomas"])
+
+#Agrego el diccionario del paciente ingresado a la lista pacientes
+    pacientes.append(paciente)
+
+#Doy un back de los dos principales datos: Paciente y su dx final
+    for paciente in pacientes:
+      print(f"""Paciente: {paciente["nombre"]} - Diagnóstico: {paciente["diagnostico"]}""")
+
+
+df = pd.DataFrame(pacientes)
+
+df
